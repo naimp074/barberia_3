@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Scissors, Calendar as CalendarIcon, DollarSign, TrendingUp, Users, LogOut } from 'lucide-react';
+import { Scissors, Calendar as CalendarIcon, DollarSign, TrendingUp, Users, LogOut, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Calendar } from './Calendar';
@@ -93,6 +93,24 @@ export function Dashboard() {
       ]);
     } catch (error) {
       console.error('Error adding service:', error);
+    }
+  };
+
+  const deleteService = async (serviceId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', serviceId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setServices((prev) => prev.filter((service) => service.id !== serviceId));
+    } catch (error) {
+      console.error('Error deleting service:', error);
     }
   };
 
@@ -271,9 +289,9 @@ export function Dashboard() {
                   {selectedDateServices.map((service) => (
                     <div
                       key={service.id}
-                      className="bg-white/5 rounded-lg p-4 flex justify-between items-center border border-gray-800"
+                      className="bg-white/5 rounded-lg p-4 flex justify-between items-center border border-gray-800 group hover:bg-white/10 transition-colors"
                     >
-                      <div>
+                      <div className="flex-1">
                         <p className="text-white font-medium">{service.name}</p>
                         <p className="text-gray-400 text-sm">
                           {service.timestamp.toLocaleTimeString('es-ES', {
@@ -282,7 +300,16 @@ export function Dashboard() {
                           })}
                         </p>
                       </div>
-                      <div className="text-white font-bold">{formatCurrency(service.price)}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-white font-bold">{formatCurrency(service.price)}</div>
+                        <button
+                          onClick={() => deleteService(service.id)}
+                          className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                          title="Eliminar servicio"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -323,9 +350,9 @@ export function Dashboard() {
                   {todaysServices.map((service) => (
                     <div
                       key={service.id}
-                      className="bg-white/5 rounded-lg p-4 flex justify-between items-center border border-gray-800"
+                      className="bg-white/5 rounded-lg p-4 flex justify-between items-center border border-gray-800 group hover:bg-white/10 transition-colors"
                     >
-                      <div>
+                      <div className="flex-1">
                         <p className="text-white font-medium">{service.name}</p>
                         <p className="text-gray-400 text-sm">
                           {service.timestamp.toLocaleTimeString('es-ES', {
@@ -334,7 +361,16 @@ export function Dashboard() {
                           })}
                         </p>
                       </div>
-                      <div className="text-white font-bold">{formatCurrency(service.price)}</div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-white font-bold">{formatCurrency(service.price)}</div>
+                        <button
+                          onClick={() => deleteService(service.id)}
+                          className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                          title="Eliminar servicio"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
